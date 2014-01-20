@@ -9,6 +9,6 @@ dependencies[] = webform
 dependencies[] = views_ui
 dependencies[] = views_bulk_operations
 files[] = includes/WebformComponentEntityController.inc
-files[] = webform_component_entity.test
-
+files[] = webform_component_entity.pages.inc
+files[] = tests/webform_component_entity.test
 configure = admin/structure/webform_component_entity

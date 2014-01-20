@@ -17,18 +17,64 @@ function webform_component_entity_views_data() {
   $data['webform_component_entity']['wcid'] = array(
     'title' => t('Webform Component'),
     'help' => t('Some example content that references a Webform Component.'),
-    
-    // Define a relationship to the {node} table, so webform_component_entity views can
-    // add a relationship to nodes. If you want to define a relationship the
-    // other direction, use hook_views_data_alter(), or use the 'implicit' join
-    // method described above.
     'relationship' => array(
-      'base' => 'webform_component_entity', // The name of the table to join with.
-      'base field' => 'wcid', // The name of the field on the joined table.
+      'base' => 'webform_component_entity',
+      'base field' => 'wcid',
       'handler' => 'views_handler_field',
       'label' => t('Default label for the relationship'),
       'title' => t('Title shown when adding the relationship'),
       'help' => t('More information on this relationship'),
+    ),
+  );
+  $data['webform_component_entity']['name'] = array(
+    'title' => t('Name'),
+    'help' => t('Name of the webform component'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+  $data['webform_component_entity']['type'] = array(
+    'title' => t('Type'),
+    'help' => t('Type of the webform component'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );  
+  $data['webform_component_entity']['value'] = array(
+    'title' => t('Value'),
+    'help' => t('Value of the webform component'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
     ),
   );
   return $data;
@@ -40,8 +86,8 @@ function webform_component_entity_views_data() {
  */
 function webform_component_entity_views_default_views() {
   $views = array();
-  
-  			$view = new view();
+
+  $view = new view();
   $view->name = 'webform_component';
   $view->description = '';
   $view->tag = 'default';
@@ -62,11 +108,72 @@ function webform_component_entity_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['style_plugin'] = 'table';
-  /* Field: Webform Componen tEntity: Component Tags */
+  $handler->display->display_options['style_options']['columns'] = array(
+    'name' => 'name',
+    'type' => 'type',
+    'value' => 'value',
+    'field_component_tags' => 'field_component_tags',
+    'field_sample_additional' => 'field_sample_additional',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'name' => array(
+  	'sortable' => 0,
+  	'default_sort_order' => 'asc',
+  	'align' => '',
+  	'separator' => '',
+  	'empty_column' => 0,
+    ),
+    'type' => array(
+  	'sortable' => 0,
+  	'default_sort_order' => 'asc',
+  	'align' => '',
+  	'separator' => '',
+  	'empty_column' => 0,
+    ),
+    'value' => array(
+  	'sortable' => 0,
+  	'default_sort_order' => 'asc',
+  	'align' => '',
+  	'separator' => '',
+  	'empty_column' => 0,
+    ),
+    'field_component_tags' => array(
+  	'sortable' => 0,
+  	'default_sort_order' => 'asc',
+  	'align' => '',
+  	'separator' => '',
+  	'empty_column' => 0,
+    ),
+    'field_sample_additional' => array(
+  	'sortable' => 0,
+  	'default_sort_order' => 'asc',
+  	'align' => '',
+  	'separator' => '',
+  	'empty_column' => 0,
+    ),
+  );
+  $handler->display->display_options['style_options']['empty_table'] = TRUE;
+  /* Field: Webform Component: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+  /* Field: Webform Component: Type */
+  $handler->display->display_options['fields']['type']['id'] = 'type';
+  $handler->display->display_options['fields']['type']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['type']['field'] = 'type';
+  $handler->display->display_options['fields']['type']['element_label_colon'] = FALSE;
+  /* Field: Webform Component: Value */
+  $handler->display->display_options['fields']['value']['id'] = 'value';
+  $handler->display->display_options['fields']['value']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['value']['field'] = 'value';
+  $handler->display->display_options['fields']['value']['element_label_colon'] = FALSE;
+  /* Field: Webform Component Entity: Component Tags */
   $handler->display->display_options['fields']['field_component_tags']['id'] = 'field_component_tags';
   $handler->display->display_options['fields']['field_component_tags']['table'] = 'field_data_field_component_tags';
   $handler->display->display_options['fields']['field_component_tags']['field'] = 'field_component_tags';
-  /* Field: Webform Componen tEntity: Sample Additional Field */
+  /* Field: Webform Component Entity: Sample Additional Field */
   $handler->display->display_options['fields']['field_sample_additional']['id'] = 'field_sample_additional';
   $handler->display->display_options['fields']['field_sample_additional']['table'] = 'field_data_field_sample_additional';
   $handler->display->display_options['fields']['field_sample_additional']['field'] = 'field_sample_additional';
@@ -80,6 +187,13 @@ function webform_component_entity_views_default_views() {
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'action::webform_component_entity_add_to_webform' => array(
+  	'selected' => 1,
+  	'postpone_processing' => 0,
+  	'skip_confirmation' => 1,
+  	'override_label' => 0,
+  	'label' => '',
+    ),
     'action::views_bulk_operations_delete_item' => array(
   	'selected' => 0,
   	'postpone_processing' => 0,
@@ -108,7 +222,7 @@ function webform_component_entity_views_default_views() {
   	),
     ),
     'action::views_bulk_operations_argument_selector_action' => array(
-  	'selected' => 1,
+  	'selected' => 0,
   	'skip_confirmation' => 1,
   	'override_label' => 0,
   	'label' => '',
@@ -124,19 +238,19 @@ function webform_component_entity_views_default_views() {
   	'label' => '',
     ),
   );
-  /* Sort criterion: Webform Componen tEntity: Component Tags (field_component_tags) */
+  /* Sort criterion: Webform Component Entity: Component Tags (field_component_tags) */
   $handler->display->display_options['sorts']['field_component_tags_tid']['id'] = 'field_component_tags_tid';
   $handler->display->display_options['sorts']['field_component_tags_tid']['table'] = 'field_data_field_component_tags';
   $handler->display->display_options['sorts']['field_component_tags_tid']['field'] = 'field_component_tags_tid';
   $handler->display->display_options['sorts']['field_component_tags_tid']['exposed'] = TRUE;
   $handler->display->display_options['sorts']['field_component_tags_tid']['expose']['label'] = 'Component Tags';
-  /* Sort criterion: Webform Componen tEntity: Sample Additional Field (field_sample_additional) */
+  /* Sort criterion: Webform Component Entity: Sample Additional Field (field_sample_additional) */
   $handler->display->display_options['sorts']['field_sample_additional_value']['id'] = 'field_sample_additional_value';
   $handler->display->display_options['sorts']['field_sample_additional_value']['table'] = 'field_data_field_sample_additional';
   $handler->display->display_options['sorts']['field_sample_additional_value']['field'] = 'field_sample_additional_value';
   $handler->display->display_options['sorts']['field_sample_additional_value']['exposed'] = TRUE;
   $handler->display->display_options['sorts']['field_sample_additional_value']['expose']['label'] = 'Sample Additional Field';
-  /* Filter criterion: Webform Componen tEntity: Component Tags (field_component_tags) */
+  /* Filter criterion: Webform Component Entity: Component Tags (field_component_tags) */
   $handler->display->display_options['filters']['field_component_tags_tid']['id'] = 'field_component_tags_tid';
   $handler->display->display_options['filters']['field_component_tags_tid']['table'] = 'field_data_field_component_tags';
   $handler->display->display_options['filters']['field_component_tags_tid']['field'] = 'field_component_tags_tid';
@@ -152,7 +266,7 @@ function webform_component_entity_views_default_views() {
     3 => 0,
   );
   $handler->display->display_options['filters']['field_component_tags_tid']['vocabulary'] = 'component_tags';
-  /* Filter criterion: Webform Componen tEntity: Sample Additional Field (field_sample_additional) */
+  /* Filter criterion: Webform Component Entity: Sample Additional Field (field_sample_additional) */
   $handler->display->display_options['filters']['field_sample_additional_value']['id'] = 'field_sample_additional_value';
   $handler->display->display_options['filters']['field_sample_additional_value']['table'] = 'field_data_field_sample_additional';
   $handler->display->display_options['filters']['field_sample_additional_value']['field'] = 'field_sample_additional_value';
@@ -169,6 +283,34 @@ function webform_component_entity_views_default_views() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['path'] = 'admin/structure/webform_component_entity/%/list';
+
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page_1');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Webform Component: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+  /* Field: Webform Component: Type */
+  $handler->display->display_options['fields']['type']['id'] = 'type';
+  $handler->display->display_options['fields']['type']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['type']['field'] = 'type';
+  $handler->display->display_options['fields']['type']['element_label_colon'] = FALSE;
+  /* Field: Webform Component: Value */
+  $handler->display->display_options['fields']['value']['id'] = 'value';
+  $handler->display->display_options['fields']['value']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['value']['field'] = 'value';
+  $handler->display->display_options['fields']['value']['element_label_colon'] = FALSE;
+  /* Field: Webform Component Entity: Component Tags */
+  $handler->display->display_options['fields']['field_component_tags']['id'] = 'field_component_tags';
+  $handler->display->display_options['fields']['field_component_tags']['table'] = 'field_data_field_component_tags';
+  $handler->display->display_options['fields']['field_component_tags']['field'] = 'field_component_tags';
+  /* Field: Webform Component Entity: Sample Additional Field */
+  $handler->display->display_options['fields']['field_sample_additional']['id'] = 'field_sample_additional';
+  $handler->display->display_options['fields']['field_sample_additional']['table'] = 'field_data_field_sample_additional';
+  $handler->display->display_options['fields']['field_sample_additional']['field'] = 'field_sample_additional';
   $handler->display->display_options['path'] = 'admin/structure/webform_component_entity';
   
   $views[] = $view;
