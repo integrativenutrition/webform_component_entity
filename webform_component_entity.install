@@ -1,14 +1,24 @@
 <?php
 /**
  * @file
+ * Install for a basic entity - need to create the base table for our entity.
+ * This table can have as many columns as you need to keep track of
+ * entity-specific data that will not be added via attached fields.
+ * The minimum information for the entity to work is an id and an entity name.
  */
 
 /**
  * Implements hook_schema().
+ *
+ * @ingroup webform_component_entity
  */
 function webform_component_entity_schema() {
   $schema = array();
+  
+  // Load the webform component schema and add to the webform component entity schema
   $schema['webform_component_entity'] = drupal_get_schema_unprocessed('webform', 'webform_component');
+  
+  // Set new field
   $schema['webform_component_entity']['fields']['wcid'] = array(
     'description' => 'Primary Key: The identifier for a webform component entity.',
     'type' => 'serial',
@@ -22,41 +32,34 @@ function webform_component_entity_schema() {
     'not null' => TRUE,
     'default' => '',
   );
+  
+  // Set primary key
   $schema['webform_component_entity']['primary key'] = array('wcid');
   $schema['webform_component_entity']['indexes'] = array(
     'type' => array('bundle'),
   );
+
+  // Unset unnecessary fields
   unset($schema['webform_component_entity']['fields']['nid']);
   unset($schema['webform_component_entity']['fields']['cid']);
   unset($schema['webform_component_entity']['fields']['pid']);
+
   return $schema;
 }
 
 
 /*
  * Implements hook_uninstall().
+ *
+ * At uninstall time we'll notify field.module that the entity was deleted
+ * so that attached fields can be cleaned up.
+ *
+ * @ingroup webform_component_entity
  */
 function webform_component_entity_uninstall() {
-  // Delete bundle
   field_attach_delete_bundle('webform_component_entity' , 'webform_component_entity' );
-  
-  // Delete fields and all its instance
-  $field_tags = field_info_field('field_component_tags');
-  if (!empty($field_tags)) {
-	field_delete_field('field_component_tags');
-  }
-  
-  $field_sample_additional = field_info_field('field_sample_additional');
-  if (!empty($field_sample_additional)) {
-	field_delete_field('field_sample_additional');
-  }
-  
-  // Delete vocabulary
-  $vocabulary = taxonomy_vocabulary_machine_name_load('component_tags');
-  if (!empty($vocabulary)) {
-    taxonomy_vocabulary_delete($vocabulary->vid);
-  }
 }
+
 
 function webform_component_entity_install() {
   $vocabulary = taxonomy_vocabulary_machine_name_load('component_tags');
@@ -99,7 +102,7 @@ function webform_component_entity_install() {
       'bundle' => 'webform_component_entity',
       'required' => FALSE,
       'widget' => array(
-        'type' => 'taxonomy_autocomplete',
+        'type' => 'options_select',
       ),
       'display' => array(
         'default' => array(
