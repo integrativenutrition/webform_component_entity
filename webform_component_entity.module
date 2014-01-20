@@ -1,0 +1,236 @@
+<?php
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function webform_component_entity_menu() {
+  $items = array();
+  $items['admin/content/webform_component_entity'] = array(
+    'title' => 'Webform Components',
+    'description' => 'Manage webform component entities',
+    'page callback' => 'webform_component_entity_list_entities',
+    'file' => 'webform_component_entity.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer webform_component_entity'),
+  );
+
+  $items['admin/content/webform_component_entity/list'] = array(
+    'title' => 'List',
+    'description' => 'List all webform component entities',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  /*
+  $items['admin/structure/webform_component_entity/%webform_menu/list'] = array(
+    'title' => t('Administer Webform Component Entity'),
+    'page callback' => 'webform_component_entity_list_entities',
+    'page arguments' => array(3),
+    'access arguments' => array('administer webform_component_entity'),
+    'file' => 'webform_component_entity.pages.inc',
+  );
+  */
+
+  $items['node/%webform_menu/webform/add-from-library'] = array(
+    'title' => t('Add from library'),
+    'page callback' => 'webform_component_entity_add_from_library',
+    'page arguments' => array(1),
+    'access arguments' => array('administer webform_component_entity'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'webform_component_entity.pages.inc'
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_action_info().
+ */
+function webform_component_entity_action_info() {
+  $action = array(
+    'webform_component_entity_add_to_webform' => array(
+      'label' => t('Add selected Webform Component Entities to current Webform.'),
+      'type' => 'webform_component',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+  );
+  return $action;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function webform_component_entity_entity_info() {
+  $info['webform_component'] = array(
+    'label' => t('Webform Component Entity'),
+    'controller class' => 'WebformComponentEntityController',
+    'base table' => 'webform_component_entity',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'wcid',
+      'bundle' => 'bundle'
+    ),
+    'bundle keys' => array(
+      'bundle' => 'bundle',
+    ),
+    'static cache' => TRUE,
+    'bundles' => array(
+      'webform_component_entity' => array(
+        'label' => 'Webform Component Entity',
+        'admin' => array(
+          'path' => 'admin/content/webform_component_entity',
+          'access arguments' => array('administer webform_component_entity entities'),
+        ),
+      ),
+    ),
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' =>  FALSE,
+      ),
+    )
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function webform_component_entity_permission() {
+  $permissions = array(
+    'administer webform_component_entity' =>  array(
+      'title' => t('Administer webform_component_entity'),
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function webform_component_entity_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'webform_component_entity') . '/views',
+  );
+}
+
+function webform_component_entity_views_bulk_operations_form_alter(&$form, &$form_state, $vbo) {
+  if($vbo && $vbo->view->name == 'webform_component') {
+    $form['webform_component_webform_nid'] = array(
+      '#type' => 'value',
+      '#value' => isset($vbo->view->args[0]) ? $vbo->view->args[0] : 0,
+    );
+    $form['select']['submit']['#submit'][] = 'webform_component_entity_views_bulk_operations_form_alter_submit';
+    $form['#submit'][] = 'webform_component_entity_views_bulk_operations_form_alter_submit';
+  }
+}
+
+function webform_component_entity_views_bulk_operations_form_alter_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  if(isset($values['webform_component_webform_nid']) && $values['webform_component_webform_nid']) {
+    $wcids = $values['views_bulk_operations'];
+    $node = node_load($values['webform_component_webform_nid']);
+    if(!empty($wcids) && $node) {
+      foreach($wcids as $wcid) {
+        if($wcid) {
+          $entity = db_select('webform_component_entity', 'w')
+            ->fields('w')
+            ->condition('wcid', $wcid)
+            ->execute()
+            ->fetchObject();
+          $webform_component = (array) $entity;
+          $webform_component['nid'] = $node->nid;
+          $webform_component['pid'] = 0;
+          $webform_component['extra'] = unserialize($webform_component['extra']);
+          webform_component_insert($webform_component);
+        }
+      }
+      $form_state['redirect'] = 'node/' . $values['webform_component_webform_nid'] . '/webform';
+    }
+  }
+}
+
+function webform_component_entity_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'webform_component_edit_form' && arg(4) == 'new') {
+    $entity = entity_get_controller('webform_component')->create();
+    $form['basic_entity'] = array(
+      '#type' => 'value',
+      '#value' => $entity,
+    );    
+    $form['library'] = array(
+      '#title' => t('Library'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#attributes' => array('class' => array('collapsible')),
+    );
+    $form['library']['save_for_future_use'] = array(
+      '#title' => t('Saving for future use'),
+      '#type' => 'checkbox',
+      '#value' => 1,
+    );
+    $form['library']['entity_fields_container'] = array(
+      '#type' => 'container',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="library[save_for_future_use]"]' => array(
+            'checked' => TRUE,
+          ),
+        ),
+      ),
+    );
+    field_attach_form('webform_component', $entity, $form, $form_state);
+    $instances = field_info_instances('webform_component', 'webform_component_entity');
+    foreach($instances as $field_name => $instance) {
+      $form['library']['entity_fields_container'][$field_name] = $form[$field_name];
+      unset($form[$field_name]);
+    }    
+    $form['#submit'][] = 'webform_component_entity_form_alter_submit';
+  }
+  
+  if ($form_id == 'webform_components_form') {
+	$form['add_from_library'] = array(
+      '#markup' => '<a href="webform/add-from-library" value="Add from library" class="form-submit form-reset" style="float: right;">Add from Library</a>',
+	  '#weight' => -100,
+    );
+  }
+}
+
+function webform_component_entity_form_alter_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['library']['save_for_future_use']) {
+    $entity = $values['basic_entity'];
+    $entity->name = isset($values['name']) ? $values['name'] : '';
+    $entity->form_key = isset($values['form_key']) ? $values['form_key'] : '';
+    $entity->type = isset($values['type']) ? $values['type'] : '';
+    $entity->value = isset($values['value']) ? $values['value'] : '';
+    $entity->extra = isset($values['extra']) ? serialize($values['extra']) : array();
+    $entity->mandatory = isset($values['mandatory']) ? $values['mandatory'] : 0;
+    $entity->weight = isset($values['weight']) ? $values['weight'] : 0;
+    $instances = field_info_instances('webform_component', 'webform_component_entity');
+    foreach($instances as $field_name => $instance) {
+      $form_state['values'][$field_name] = $form_state['values']['library']['entity_fields_container'][$field_name];
+    }
+    field_attach_submit('webform_component', $entity, $form, $form_state);
+    $entity = webform_component_entity_save($entity);    
+  }
+}
+
+function webform_component_entity_load($wcid = NULL, $reset = FALSE) {
+  $wcids = (isset($wcid) ? array($wcid) : array());
+  $basic = webform_component_entity_load_multiple($wcids, array(), $reset);
+  return $basic ? reset($basic) : FALSE;
+}
+
+function webform_component_entity_load_multiple($wcids = FALSE, $conditions = array(), $reset = FALSE) {
+  return entity_load('webform_component', $wcids, $conditions, $reset);
+}
+
+function webform_component_entity_save(&$entity) {
+  return entity_get_controller('webform_component')->save($entity);
+}

@@ -1,0 +1,99 @@
+<?php
+
+class WebformComponentEntityTestCase extends DrupalWebTestCase 
+{
+  protected $privileged_user;
+  private $_webform_node;
+  
+  static public function getInfo()
+  {
+    return array(
+      'name' => 'Webform Component Entity Tests',
+      'description' => 'Unit Tests for Webform Component Entity module',
+      'group' => 'Webform Component Entity',
+    );
+  }
+  
+  public function setUp() {
+	parent::setUp(array('field', 'taxonomy', 'entity', 'webform', 'views_ui', 'views_bulk_operations', 'webform_component_entity'));
+	// Create and log in an admin user since we need permissions to work 
+	// on different modules
+    $user = $this->drupalCreateUser();
+	$roles = user_roles();
+    $index = array_search('administrator', $roles);
+    $user->roles[$index] = 'administrator';
+    $this->privileged_user = user_save($user);
+    $this->drupalLogin($this->privileged_user);
+	
+	// Insert a new webform node and a component entity for that node
+	$this->testAddComponentEntity(); 
+	
+  }
+  
+  public function testAddComponentEntity() {
+	// Insert a new webform node
+	$webform_node_data = array(
+      'type' => 'webform',
+      'title' => $this->randomName(32),
+      'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
+    );
+    $this->_webform_node = $this->drupalCreateNode($webform_node_data);
+	$this->verbose('Webform node created: ' . var_export($this->_webform_node, TRUE));
+	
+	$this->drupalGet("node/{$this->_webform_node->nid}/webform");
+	// Make sure we don't get a 401 unauthorized response:
+	$this->assertResponse(200, 'User is allowed to add new component.');
+	$this->assertText(t('@title', array('@title' => $webform_node_data['title'])), 'Found webform title in the add component form');
+	// Insert a new webform component
+	// Fill in the generic form and do a post
+	$component = array();
+    $component['add[name]'] = 'Sample component entity';
+    $component['add[type]'] = 'textfield';
+	$component['add[mandatory]'] = '1';
+    $this->drupalPost(NULL, $component, t('Add'));
+	// Fill in the detail form and do a post
+	$component_detail = array();
+	$component_detail['name'] = 'Sample component entity';
+	$component_detail['form_key'] = 'sample_component_entity';
+	$component_detail['value'] = '';
+	$component_detail['library[save_for_future_use]'] = 1;
+	$component_detail['library[entity_fields_container][field_component_tags][und]'] = 'sample';
+	$component_detail['extra[description]'] = 'Sample component entity description';
+	$component_detail['mandatory'] = 1;
+	$component_detail['extra[unique]'] = 0;
+	$component_detail['extra[maxlength]'] = '';
+	$component_detail['extra[width]'] = '';
+	$component_detail['extra[field_prefix]'] = '';
+	$component_detail['extra[field_suffix]'] = '';
+	$component_detail['extra[title_display]'] = 'before';
+	$component_detail['extra[disabled]'] = 0;
+	$component_detail['extra[private]'] = 0;
+	$this->drupalPost(NULL, $component_detail, t('Save component'));
+	$this->assertText(t('@name', array('@name' => $component_detail['name'])), 'Found component name in the component list');
+  }
+  
+  public function testAddComponentFromLibrary () {
+	// Insert a new webform node
+	$webform_node_data = array(
+      'type' => 'webform',
+      'title' => $this->randomName(32),
+      'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
+    );
+    $webform_node = $this->drupalCreateNode($webform_node_data);
+	$this->verbose('Webform node created: ' . var_export($webform_node, TRUE));
+	
+	$this->drupalGet("node/{$webform_node->nid}/webform/add-from-library");
+	// Make sure we don't get a 401 unauthorized response:
+	$this->assertResponse(200, 'User is allowed to add new component from library.');
+	
+	// Get first component entity
+	$component_entity = db_query('SELECT wcid, name FROM {webform_component_entity} ORDER BY wcid LIMIT 1')->fetchAssoc();
+	$this->verbose('First component entity selected: ' . var_export($component_entity, TRUE));
+	// Select checkbox and choose an operation, then do a submit
+	$data['views_bulk_operations[0]'] = $component_entity['wcid'];
+	$data['operation'] = 'action::webform_component_entity_add_to_webform';
+	$this->drupalPost(NULL, $data, t('Execute'));
+	$this->assertText(t('@name', array('@name' => $component_entity['name'])), 'Found component entity name in the component list');
+  }
+}
+?>
