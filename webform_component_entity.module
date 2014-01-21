@@ -7,15 +7,15 @@
  * Implements hook_menu().
  */
 function webform_component_entity_menu() {
-  $items['admin/structure/webform_component_entity'] = array(
+  $items['admin/config/content/webform-component-entity'] = array(
     'title' => t('Administer Webform Component Entity'),
     'page callback' => 'webform_component_entity_list_entities',
     'access arguments' => array('administer webform_component_entity'),
     'file' => 'webform_component_entity.pages.inc',
   );
 
-  $items['admin/structure/webform_component_entity/%webform_menu/list'] = array(
-    'title' => t('Administer Webform Component Entity'),
+  $items['admin/config/content/webform-component-entity/list'] = array(
+    'title' => t('Webform Component Entity'),
     'page callback' => 'webform_component_entity_list_entities',
     'page arguments' => array(3),
     'access arguments' => array('administer webform_component_entity'),
@@ -28,7 +28,6 @@ function webform_component_entity_menu() {
     'page arguments' => array(1),
     'access arguments' => array('administer webform_component_entity'),
     'weight' => 0,
-    'type' => MENU_LOCAL_TASK,
     'file' => 'webform_component_entity.pages.inc'
   );
   return $items;
@@ -48,6 +47,10 @@ function webform_component_entity_action_info() {
   );
   return $action;
 }
+
+function webform_component_entity_add_from_library($entity, $context){
+}
+
 
 /**
  * Implements hook_entity_info().
@@ -70,7 +73,7 @@ function webform_component_entity_entity_info() {
       'webform_component_entity' => array(
         'label' => 'Webform Component Entity',
         'admin' => array(
-          'path' => 'admin/structure/webform_component_entity',
+          'path' => 'admin/config/content/webform-component-entity',
           'access arguments' => array('administer webform_component_entity entities'),
         ),
       ),
@@ -124,6 +127,8 @@ function webform_component_entity_views_bulk_operations_form_alter_submit(&$form
   if(isset($values['webform_component_webform_nid']) && $values['webform_component_webform_nid']) {
     $wcids = $values['views_bulk_operations'];
     $node = node_load($values['webform_component_webform_nid']);
+    file_put_contents("public://values.txt", print_r($values, true));
+    file_put_contents("public://node.txt", print_r($node, true));
     if(!empty($wcids) && $node) {
       foreach($wcids as $wcid) {
         if($wcid) {
@@ -181,6 +186,12 @@ function webform_component_entity_form_alter(&$form, &$form_state, $form_id) {
     }    
     $form['#submit'][] = 'webform_component_entity_form_alter_submit';
   }
+  if ($form_id == 'webform_components_form') {
+    $form['add_from_library'] = array(
+      '#markup' => '<a href="webform/add-from-library" value="Add from library" class="form-submit form-reset" style="float: right;">Add from Library</a>',
+      '#weight' => -100,
+    );
+  }  
 }
 
 function webform_component_entity_form_alter_submit(&$form, &$form_state) {
