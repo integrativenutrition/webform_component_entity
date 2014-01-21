@@ -15,14 +15,6 @@ function webform_component_entity_menu() {
     'file' => 'webform_component_entity.pages.inc',
   );
 
-  $items['admin/config/content/webform-component-entity/list'] = array(
-    'title' => t('Webform Component Entity'),
-    'page callback' => 'webform_component_entity_list_entities',
-    'page arguments' => array(3),
-    'access arguments' => array('administer webform_component_entity'),
-    'file' => 'webform_component_entity.pages.inc',
-  );
-
   $items['node/%webform_menu/webform/add-from-library'] = array(
     'title' => t('Add from library'),
     'page callback' => 'webform_component_entity_add_from_library',
