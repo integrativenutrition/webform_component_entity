@@ -4,29 +4,6 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function webform_component_entity_menu() {
-  $items['admin/config/content/webform-component-entity'] = array(
-    'title' => t('Webform Component Entity'),
-    'description' => t('Administer Webform Component Entity'),
-    'page callback' => 'webform_component_entity_list_entities',
-    'access arguments' => array('administer webform_component_entity'),
-    'file' => 'webform_component_entity.pages.inc',
-  );
-
-  $items['node/%webform_menu/webform/add-from-library'] = array(
-    'title' => t('Add from library'),
-    'page callback' => 'webform_component_entity_add_from_library',
-    'page arguments' => array(1),
-    'access arguments' => array('administer webform_component_entity'),
-    'weight' => 0,
-    'file' => 'webform_component_entity.pages.inc'
-  );
-  return $items;
-}
-
-/**
  * Implements hook_action_info().
  */
 function webform_component_entity_action_info() {
