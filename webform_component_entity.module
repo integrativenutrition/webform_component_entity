@@ -180,9 +180,9 @@ function webform_component_entity_form_alter(&$form, &$form_state, $form_id) {
     $form['#submit'][] = 'webform_component_entity_form_alter_submit';
   }
   if ($form_id == 'webform_components_form') {
+    $node_id = isset($form['#node']) ? $form['#node']->nid : 0;
     $form['add_from_library'] = array(
-      '#markup' => '<a href="' . base_path() . current_path() . '/add-from-library" value="Add from library" class="form-submit form-reset" style="float: right;">Add from Library</a>',
-      '#weight' => -100,
+      '#markup' => '<a href="' . base_path() . 'node/' . $node_id . '/webform/add-from-library" value="Add from library" class="form-submit form-reset" style="float: right;">Add from Library</a>',
     );
   }  
 }
