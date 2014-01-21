@@ -283,7 +283,7 @@ function webform_component_entity_views_default_views() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'admin/structure/webform_component_entity/%/list';
+  $handler->display->display_options['path'] = 'node/%/webform/add-from-library';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page_1');
@@ -311,7 +311,67 @@ function webform_component_entity_views_default_views() {
   $handler->display->display_options['fields']['field_sample_additional']['id'] = 'field_sample_additional';
   $handler->display->display_options['fields']['field_sample_additional']['table'] = 'field_data_field_sample_additional';
   $handler->display->display_options['fields']['field_sample_additional']['field'] = 'field_sample_additional';
-  $handler->display->display_options['path'] = 'admin/structure/webform_component_entity';
+  /* Field: Bulk operations: Webform Component */
+  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'webform_component_entity';
+  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '0';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'action::webform_component_entity_add_to_webform' => array(
+  	'selected' => 0,
+  	'postpone_processing' => 0,
+  	'skip_confirmation' => 0,
+  	'override_label' => 0,
+  	'label' => '',
+    ),
+    'action::views_bulk_operations_delete_item' => array(
+  	'selected' => 1,
+  	'postpone_processing' => 0,
+  	'skip_confirmation' => 0,
+  	'override_label' => 0,
+  	'label' => '',
+    ),
+    'action::views_bulk_operations_script_action' => array(
+  	'selected' => 0,
+  	'postpone_processing' => 0,
+  	'skip_confirmation' => 0,
+  	'override_label' => 0,
+  	'label' => '',
+    ),
+    'action::views_bulk_operations_modify_action' => array(
+  	'selected' => 0,
+  	'postpone_processing' => 0,
+  	'skip_confirmation' => 0,
+  	'override_label' => 0,
+  	'label' => '',
+  	'settings' => array(
+  	  'show_all_tokens' => 1,
+  	  'display_values' => array(
+  		'_all_' => '_all_',
+  	  ),
+  	),
+    ),
+    'action::views_bulk_operations_argument_selector_action' => array(
+  	'selected' => 0,
+  	'skip_confirmation' => 0,
+  	'override_label' => 0,
+  	'label' => '',
+  	'settings' => array(
+  	  'url' => '',
+  	),
+    ),
+    'action::system_send_email_action' => array(
+  	'selected' => 0,
+  	'postpone_processing' => 0,
+  	'skip_confirmation' => 0,
+  	'override_label' => 0,
+  	'label' => '',
+    ),
+  );
+  $handler->display->display_options['path'] = 'admin/config/content/webform-component-entity';
   
   $views[] = $view;
   return $views;
