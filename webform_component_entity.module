@@ -8,7 +8,8 @@
  */
 function webform_component_entity_menu() {
   $items['admin/config/content/webform-component-entity'] = array(
-    'title' => t('Administer Webform Component Entity'),
+    'title' => t('Webform Component Entity'),
+    'description' => t('Administer Webform Component Entity'),
     'page callback' => 'webform_component_entity_list_entities',
     'access arguments' => array('administer webform_component_entity'),
     'file' => 'webform_component_entity.pages.inc',
