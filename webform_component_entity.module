@@ -30,6 +30,7 @@ function webform_component_entity_entity_info() {
     'label' => t('Webform Component Entity'),
     'controller class' => 'WebformComponentEntityController',
     'base table' => 'webform_component_entity',
+    'module' => 'webform_component_entity',
     'fieldable' => TRUE,
     'entity keys' => array(
       'id' => 'wcid',
