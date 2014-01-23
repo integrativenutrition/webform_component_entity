@@ -30,6 +30,9 @@ function webform_component_entity_add_to_webform_form($context) {
   if (!isset($context['current_webform_nid'])) {
     $context['current_webform_nid'] = $context['view']->args[0];
   }
+  $form['webform_component_entity_title'] = array(
+    '#markup' => t("Are you sure you want to add these entity to the current webform?"),
+  );
 
   $form['current_webform_nid'] = array(
     '#type' => 'value',
