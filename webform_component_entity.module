@@ -3,24 +3,50 @@
  * @file
  */
 
-/**
- * Implements hook_action_info().
- */
 function webform_component_entity_action_info() {
-  $action = array(
+  return array(
     'webform_component_entity_add_to_webform' => array(
-      'label' => t('Add selected Webform Component Entities to current Webform.'),
       'type' => 'webform_component',
-      'configurable' => FALSE,
+      'label' => t('Add to Current Webform'),
+      'configurable' => TRUE,
+      'behavior' => array('view_property'),
       'triggers' => array('any'),
     ),
   );
-  return $action;
 }
 
-function webform_component_entity_add_from_library($entity, $context){
+function webform_component_entity_add_to_webform($entity, $context) {
+  $node = node_load($context['current_webform_nid']);
+  if($node && $entity) {
+    $webform_component = (array) $entity;
+    $webform_component['nid'] = $node->nid;
+    $webform_component['pid'] = 0;
+    $webform_component['extra'] = unserialize($webform_component['extra']);
+    webform_component_insert($webform_component);
+  }
 }
 
+function webform_component_entity_add_to_webform_form($context) {
+  if (!isset($context['current_webform_nid'])) {
+    $context['current_webform_nid'] = $context['view']->args[0];
+  }
+
+  $form['current_webform_nid'] = array(
+    '#type' => 'value',
+    '#value' => $context['current_webform_nid'],
+  );
+
+  return $form;
+}
+
+function webform_component_entity_add_to_webform_submit($form, $form_state) {
+  $form_values = $form_state['values'];
+  $params = array(
+    'current_webform_nid' => $form_values['current_webform_nid'],
+  );
+  $form_state['build_info']['args']['0']->override_url = 'node/' . $form_values['current_webform_nid'] . '/webform';
+  return $params;
+}
 
 /**
  * Implements hook_entity_info().
@@ -80,44 +106,6 @@ function webform_component_entity_views_api() {
     'api' => 3,
     'path' => drupal_get_path('module', 'webform_component_entity') . '/views',
   );
-}
-
-function webform_component_entity_views_bulk_operations_form_alter(&$form, &$form_state, $vbo) {
-  if($vbo && $vbo->view->name == 'webform_component') {
-    $form['webform_component_webform_nid'] = array(
-      '#type' => 'value',
-      '#value' => isset($vbo->view->args[0]) ? $vbo->view->args[0] : 0,
-    );
-    $form['select']['submit']['#submit'][] = 'webform_component_entity_views_bulk_operations_form_alter_submit';
-    $form['#submit'][] = 'webform_component_entity_views_bulk_operations_form_alter_submit';
-  }
-}
-
-function webform_component_entity_views_bulk_operations_form_alter_submit(&$form, &$form_state) {
-  $values = $form_state['values'];
-  if(isset($values['webform_component_webform_nid']) && $values['webform_component_webform_nid']) {
-    $wcids = $values['views_bulk_operations'];
-    $node = node_load($values['webform_component_webform_nid']);
-    file_put_contents("public://values.txt", print_r($values, true));
-    file_put_contents("public://node.txt", print_r($node, true));
-    if(!empty($wcids) && $node) {
-      foreach($wcids as $wcid) {
-        if($wcid) {
-          $entity = db_select('webform_component_entity', 'w')
-            ->fields('w')
-            ->condition('wcid', $wcid)
-            ->execute()
-            ->fetchObject();
-          $webform_component = (array) $entity;
-          $webform_component['nid'] = $node->nid;
-          $webform_component['pid'] = 0;
-          $webform_component['extra'] = unserialize($webform_component['extra']);
-          webform_component_insert($webform_component);
-        }
-      }
-      $form_state['redirect'] = 'node/' . $values['webform_component_webform_nid'] . '/webform';
-    }
-  }
 }
 
 function webform_component_entity_form_alter(&$form, &$form_state, $form_id) {
