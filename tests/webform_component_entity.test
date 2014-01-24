@@ -72,7 +72,7 @@ class WebformComponentEntityTestCase extends DrupalWebTestCase
 	$this->assertText(t('@name', array('@name' => $component_detail['name'])), 'Found component name in the component list');
   }
   
-  public function testAddComponentFromLibrary () {
+  public function testAddComponentFromLibrary() {
 	// Insert a new webform node
 	$webform_node_data = array(
       'type' => 'webform',
@@ -93,7 +93,20 @@ class WebformComponentEntityTestCase extends DrupalWebTestCase
 	$data['views_bulk_operations[0]'] = $component_entity['wcid'];
 	$data['operation'] = 'action::webform_component_entity_add_to_webform';
 	$this->drupalPost(NULL, $data, t('Execute'));
+	$this->drupalPost(NULL, NULL, t('Next'));
 	$this->assertText(t('@name', array('@name' => $component_entity['name'])), 'Found component entity name in the component list');
+  }
+  
+  public function testDeleteComponentEntity() {
+	$this->drupalGet("admin/config/content/webform-component-entity");
+	// Get first component entity
+	$component_entity = db_query('SELECT wcid, name FROM {webform_component_entity} ORDER BY wcid LIMIT 1')->fetchAssoc();
+	$this->verbose('First component entity selected: ' . var_export($component_entity, TRUE));
+	$data['views_bulk_operations[0]'] = $component_entity['wcid'];
+	$data['operation'] = 'action::views_bulk_operations_delete_item';
+	$this->drupalPost(NULL, $data, t('Execute'));
+	$this->drupalPost(NULL, NULL, t('Confirm'));
+	$this->assertText(t('@text', array('@text' => 'Performed Delete item')), 'Performed deletion');
   }
 }
 ?>
